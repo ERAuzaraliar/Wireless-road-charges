@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+    <h2>Scan QR Code to Start Charging</h2>
+    <div id="reader"></div>
+    <script>
+        function onScanSuccess(qrMessage) {
+            if (localStorage.getItem("chargingStartTime")) {
+                window.location.href = "charging.html?stop=true";
+            } else {
+                window.location.href = qrMessage + "&start=true";
+            }
+        }
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+</html>

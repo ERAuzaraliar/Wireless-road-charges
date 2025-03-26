@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charging Page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #fff; }
+        button { padding: 12px 25px; margin: 10px; font-size: 18px; cursor: pointer; background: #f04e30; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #c03d26; }
+        #qrcode { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Charging Status</h2>
+    <p id="details"></p>
+    <p>Time: <span id="timer">0</span> min</p>
+    <p>Amount: ₹<span id="amount">0</span></p>
+    <button onclick="stopCharging()">Stop Charging</button>
+    <p id="status"></p>
+    
+    <h3>Payment QR Code</h3>
+    <div id="qrcode"></div>
+
+    <a href="index.html"><button>Home</button></a>
+
+    <script>
+        let urlParams = new URLSearchParams(window.location.search);
+        let owner = urlParams.get("owner");
+        let mobile = urlParams.get("mobile");
+        let vehicle = urlParams.get("vehicle");
+        let address = urlParams.get("address");
+        let start = urlParams.get("start");
+
+        document.getElementById("details").innerHTML = `<strong>Owner:</strong> ${owner}<br>
+                                                        <strong>Mobile:</strong> ${mobile}<br>
+                                                        <strong>Vehicle:</strong> ${vehicle}<br>
+                                                        <strong>Address:</strong> ${address}`;
+
+        let costPerMinute = 2;
+        let interval;
+
+        if (start) {
+            let startTime = new Date().getTime();
+            localStorage.setItem("chargingStartTime", startTime);
+            document.getElementById("status").innerText = "Charging Started...";
+            interval = setInterval(updateBilling, 1000);
+        }
+
+        function updateBilling() {
+            let startTime = localStorage.getItem("chargingStartTime");
+            if (startTime) {
+                let currentTime = new Date().getTime();
+                let duration = Math.ceil((currentTime - startTime) / 60000);
+                let cost = duration * costPerMinute;
+                document.getElementById("timer").innerText = duration;
+                document.getElementById("amount").innerText = cost.toFixed(2);
+            }
+        }
+
+        function stopCharging() {
+            let startTime = localStorage.getItem("chargingStartTime");
+            if (startTime) {
+                clearInterval(interval);
+                let endTime = new Date().getTime();
+                let duration = Math.ceil((endTime - startTime) / 60000);
+                let cost = duration * costPerMinute;
+                document.getElementById("timer").innerText = duration;
+                document.getElementById("amount").innerText = cost.toFixed(2);
+                document.getElementById("status").innerText = "Charging Stopped. Total Cost: ₹" + cost.toFixed(2);
+                
+                let upiData = "upi://pay?pa=9359752797@ibl&pn=WirelessCharging&mc=0000&tid=123456&tr=9876543210&tn=Charging Payment&am=" + cost + "&cu=INR";
+                document.getElementById("qrcode").innerHTML = "";
+                new QRCode(document.getElementById("qrcode"), upiData);
+
+                localStorage.removeItem("chargingStartTime");
+            } else {
+                document.getElementById("status").innerText = "No active charging session found!";
+            }
+        }
+
+        interval = setInterval(updateBilling, 1000);
+    </script>
+</body>
+</html>

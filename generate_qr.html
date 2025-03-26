@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate QR Code</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
+        h2 { color: #333; }
+        input, button { padding: 10px; margin: 10px; width: 80%; max-width: 400px; }
+        button { background: #008CBA; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #005f73; }
+        #qrcode { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h2>Generate Your Vehicle QR Code</h2>
+
+    <input type="text" id="owner" placeholder="Owner Name">
+    <input type="text" id="mobile" placeholder="Mobile Number">
+    <input type="text" id="vehicle" placeholder="Vehicle Number">
+    <input type="text" id="address" placeholder="Address">
+
+    <button onclick="generateQR()">Generate QR Code</button>
+    
+    <div id="qrcode"></div>
+
+    <a href="index.html"><button>Home</button></a>
+
+    <script>
+        function generateQR() {
+            let owner = document.getElementById("owner").value;
+            let mobile = document.getElementById("mobile").value;
+            let vehicle = document.getElementById("vehicle").value;
+            let address = document.getElementById("address").value;
+
+            if (owner && mobile && vehicle && address) {
+                let qrData = `owner=${owner}&mobile=${mobile}&vehicle=${vehicle}&address=${address}`;
+                document.getElementById("qrcode").innerHTML = "";
+                new QRCode(document.getElementById("qrcode"), "charging.html?" + qrData);
+            } else {
+                alert("Please fill all fields.");
+            }
+        }
+    </script>
+
+</body>
+</html>
